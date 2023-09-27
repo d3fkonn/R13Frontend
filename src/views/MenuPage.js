@@ -2,8 +2,11 @@ import { useState, useEffect } from "react";
 import React from "react";
 import { View, Text, Button, FlatList,Modal } from 'react-native';
 import { useNavigation } from "@react-navigation/native";
+
+
 const MenuPage = ({ route }) => {
-  const  restaurantId  = 1;
+  const { restaurantId } = route.params;
+
     const [restaurantData, setRestaurantData] = useState({});
   const [order, setOrder] = useState({});
   const [isOrderModalVisible, setIsOrderModalVisible] = useState(false); // Add isOrderModalVisible state
@@ -13,7 +16,7 @@ const MenuPage = ({ route }) => {
     setOrder({});
     setIsOrderModalVisible(false);
 
-    fetch(`https://localhost:3000/restaurants/index?id=${restaurantId}`)
+    fetch(`${process.env.EXPO_PUBLIC_NGROK_URL}/restaurants/index?id=${restaurantId}`)
       .then((response) => response.json())
       .then((data) => {
         setRestaurantData(data);

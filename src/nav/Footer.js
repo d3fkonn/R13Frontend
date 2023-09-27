@@ -6,20 +6,16 @@ import HomeScreen from '../views/HomePAge';
 import AuthenticationPage from '../views/AuthenticationPage';
 import OrderHistory from "../views/OrderHistory";
 import RestaurantsPage from '../views/RestaurantsPage';
-import MenuPage from '../views/RestaurantMenu';
+import MenuPage from '../views/MenuPage';
+
+
 const Tab = createBottomTabNavigator();
 
-// Screen names.
-const loginName = 'Login';
-const restName = 'Restaurants';
-const histName = 'Order History';
-const homeName = 'Home';
-const menuName = 'Menu';
 
 const Footer = () => {
   return (
     <Tab.Navigator
-      initialRouteName={homeName}
+      initialRouteName={'Home'}
       screenOptions={({ route }) => ({
         tabBarActiveTintColor: "red",
         tabBarInactiveTintColor: "blue",
@@ -36,15 +32,15 @@ const Footer = () => {
           let iconName;
           const rn = route.name;
 
-          if (rn === loginName) {
+          if (rn === 'Login') {
             iconName = focused ? 'list' : 'list-outline';
-          } else if (rn === restName) {
+          } else if (rn === 'Restaurants') {
             iconName = focused ? 'restaurant' : 'restaurant-outline';
-          } else if (rn === histName) {
+          } else if (rn === "Order History") {
             iconName = focused ? 'cloudy' : 'cloudy-outline';
-          } else if (rn === homeName) {
+          } else if (rn === "Home") {
             iconName = focused ? 'home' : 'home-outline';
-          } else if (rn === menuName) {
+          } else if (rn === "menu") {
             iconName = focused ? 'menu' : 'menu-outline';
           }
 
@@ -52,11 +48,11 @@ const Footer = () => {
         },
       })}
     >
-      <Tab.Screen name={loginName} component={AuthenticationPage} />
-      <Tab.Screen name={restName} component={RestaurantsPage} />
-      <Tab.Screen name={histName} component={OrderHistory} />
-      <Tab.Screen name={homeName} component={HomeScreen} />
-      <Tab.Screen name={menuName} component={MenuPage} />
+      <Tab.Screen name="Authentication" component={AuthenticationPage} />
+      <Tab.Screen name="Restaurants" component={RestaurantsPage} />
+      <Tab.Screen name="Order History" component={OrderHistory} />
+      <Tab.Screen name="Home" component={HomeScreen} />
+      <Tab.Screen name="Menu" component={MenuPage} />
     </Tab.Navigator>
   );
 };

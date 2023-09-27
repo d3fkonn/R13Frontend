@@ -15,7 +15,10 @@ import AuthenticationPage from './src/views/AuthenticationPage';
 import HomeScreen from './src/views/HomePAge';
 import Header from './src/nav/Header';
 import LoginForm from './src/component/LoginForm';
-import MenuPage from './src/views/RestaurantMenu';
+import MenuPage from './src/views/MenuPage';
+
+
+
 
 export default function App() {
   const [authenticated, setAuthenticated] = useState(false);
@@ -43,33 +46,47 @@ export default function App() {
       justifyContent: 'center',
       borderColor: '#5e0f27',
     },
-    
+
   });
+  return (
+    <SafeAreaProvider>
+      <NavigationContainer>
+        <Header userRole={userRole} setUserRole={setUserRole} />
+        
+          {authenticated ? (
+            <Stack.Screen
+              name="Login"
+              component={LoginForm}
+              initialParams={{ setAuthenticated }}
+            />
+          ) : (
+            <>
+              <Stack.Screen name="Main" component={MainStack} options={{ headerShown: false }} />
 
 
+            </>
+          )}
+       
+        <Footer/>
+      </NavigationContainer>
 
+
+    </SafeAreaProvider>
+
+  );
+}
+
+function MainStack() {
+  const Stack = createNativeStackNavigator();
 
   return (
-    
-    <NavigationContainer>
-      <Header userRole={userRole} setUserRole={setUserRole} />
-        {authenticated ? (
-          <Stack.Screen
-            name="Login"
-            component={LoginForm}
-            initialParams={{ setAuthenticated }}
-            options={{ headerShown: false }}
-          />
-          ) : (
-          <>
-          <Stack.Screen name="Home" component={HomeScreen} />
-          <Stack.Screen name="RestaurantsPage" component={RestaurantsPage} />
-          <Stack.Screen name="MenuPage" component={MenuPage} />
-          <Stack.Screen name="OrderHistory" component={OrderHistory} />
-</>
-        )}
-      <Footer />
-    </NavigationContainer>
-  
+    <Stack.Navigator initialRouteName="Home">
+
+      <Stack.Screen name="Home" component={HomeScreen} />
+      <Stack.Screen name="RestaurantsPage" component={RestaurantsPage} />
+      <Stack.Screen name="MenuPage" component={MenuPage} />
+      <Stack.Screen name="OrderHistory" component={OrderHistory} />
+
+    </Stack.Navigator>
   );
 }
