@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, Image, StyleSheet, TouchableOpacity, Dimensions, ScrollView } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import MenuPage from './MenuPage';
+import { useRoute } from "@react-navigation/native";
 
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native'; // Correct import statement
@@ -27,7 +28,14 @@ const RestaurantsPage = () => {
   const [isRatingDropdownVisible, setIsRatingDropdownVisible] = useState(false);
   const [isPriceDropdownVisible, setIsPriceDropdownVisible] = useState(false);
   const [restaurantData, setRestaurantData] = useState([]);
-  
+  const route = useRoute(); // Get the route object to access parameters
+
+  const customer_id = route.params
+
+useEffect(() => {
+  fetchRestaurants();
+}, []);
+
 
   const navigation = useNavigation(); // Get the navigation object
 
@@ -58,23 +66,29 @@ const RestaurantsPage = () => {
   if (!fontsLoaded) {
     return null; // Return null or a loading indicator while the font is loading
   }
+  const handleRestaurantPress = (restaurant) => {
+    // Navigate to RestaurantDetailsScreen and pass restaurant data
+    
+    navigation.navigate('MenuPage', {
+      restaurantId: restaurant.id,
+      customer_id: customer_id,
+
+    });  };
 
 
-
-  const fetchRestaurants = async () => {
-  try {
+  async function fetchRestaurants () {
+  
     const response = await fetch(`${process.env.EXPO_PUBLIC_NGROK_URL}/restaurants/show`);
     if (response.ok) {
       const data = await response.json();
       setRestaurantData(data);
+      return;
     } else {
       console.error('Error fetching data:', response.status);
       return [];
     }
-  } catch (error) {
-    console.error('Error fetching data:', error);
-    return [];
-  }
+
+
 };
   const filteredRestaurants = restaurantData.filter((restaurant) => {
     if (selectedRating === 'Select' && selectedPrice === 'Select') {
@@ -85,7 +99,7 @@ const RestaurantsPage = () => {
       (selectedPrice === 'Select' || restaurant.price === selectedPrice)
     );
   });
-fetchRestaurants([]);
+ 
   
 
   const renderComponent = () => {
@@ -151,9 +165,8 @@ fetchRestaurants([]);
                 <TouchableOpacity
                 key={index}
                 style={styles.restaurantCard}
-                onPress={() => {
+                onPress={() => { handleRestaurantPress(restaurant)
                   // Navigate to the MenuPage and pass the restaurantId as a parameter
-                  navigation.navigate("MainStack", { screen: 'MenuPage' }, { restaurantId: restaurant.id });
                 }}
               >
                   <Image source={restaurant.image} style={styles.restaurantImage} />

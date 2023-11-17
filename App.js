@@ -48,6 +48,16 @@ export default function App() {
     },
 
   });
+
+
+  const [customer_id, setCustomerId] = useState(null);
+
+  const handleLogin = (customerId) => {
+    setCustomerId(customerId);
+  };
+
+
+
   return (
     <SafeAreaProvider>
       <NavigationContainer>
@@ -61,7 +71,12 @@ export default function App() {
             />
           ) : (
             <>
-              <Stack.Screen name="Main" component={MainStack} options={{ headerShown: false }} />
+              <Stack.Screen name="Main" 
+              component={MainStack}
+              options={{ 
+                headerShown: false
+                
+                }} />
 
 
             </>
@@ -80,13 +95,17 @@ function MainStack() {
   const Stack = createNativeStackNavigator();
 
   return (
-    <Stack.Navigator initialRouteName="Home">
-
-      <Stack.Screen name="Home" component={HomeScreen} />
-      <Stack.Screen name="RestaurantsPage" component={RestaurantsPage} />
-      <Stack.Screen name="MenuPage" component={MenuPage} />
-      <Stack.Screen name="OrderHistory" component={OrderHistory} />
-
+    <Stack.Navigator initialRouteName={customer_id ? 'MenuPage' : 'Home'}>
+      {customer_id ? (
+        <>
+          <Stack.Screen name="MenuPage" component={MenuPage} 
+ />
+ <Stack.Screen name="RestaurantsPage" component={RestaurantsPage}  initialParams={{ customer_id }}/>
+          <Stack.Screen name="OrderHistory" component={OrderHistory} />
+        </>
+      ) : (
+        <Stack.Screen name="HomePage" component={HomeScreen} />
+      )}
     </Stack.Navigator>
   );
 }

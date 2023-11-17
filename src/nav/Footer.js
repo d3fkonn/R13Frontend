@@ -7,12 +7,13 @@ import AuthenticationPage from '../views/AuthenticationPage';
 import OrderHistory from "../views/OrderHistory";
 import RestaurantsPage from '../views/RestaurantsPage';
 import MenuPage from '../views/MenuPage';
+import { useState } from 'react';
 
-
-const Tab = createBottomTabNavigator();
 
 
 const Footer = () => {
+  const Tab = createBottomTabNavigator();
+
   return (
     <Tab.Navigator
       initialRouteName={'Home'}
@@ -40,9 +41,7 @@ const Footer = () => {
             iconName = focused ? 'cloudy' : 'cloudy-outline';
           } else if (rn === "Home") {
             iconName = focused ? 'home' : 'home-outline';
-          } else if (rn === "menu") {
-            iconName = focused ? 'menu' : 'menu-outline';
-          }
+          } 
 
           return <Ionicons name={iconName} size={size} color={color} />
         },
@@ -52,7 +51,8 @@ const Footer = () => {
       <Tab.Screen name="Restaurants" component={RestaurantsPage} />
       <Tab.Screen name="Order History" component={OrderHistory} />
       <Tab.Screen name="Home" component={HomeScreen} />
-      <Tab.Screen name="Menu" component={MenuPage} />
+      <Tab.Screen name="MenuPage" component={MenuPage} />
+
     </Tab.Navigator>
   );
 };
