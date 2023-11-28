@@ -13,6 +13,7 @@ const Header = () => {
   const _handleSearch = () => console.log('Searching');
 
   const _handleMore = () => console.log('Shown more');
+  
   const [userRole, setUserRole] = useState('customer'); // Default to 'customer'
 
   const handleFormSubmit = () => {

@@ -11,20 +11,23 @@ import { useFonts } from 'expo-font';
 import RestaurantsPage from './src/views/RestaurantsPage';
 import OrderHistory from './src/views/OrderHistory';
 import LandingScreen from './src/views/LandingPage';
+import { Provider } from 'react';
+
 import AuthenticationPage from './src/views/AuthenticationPage';
 import HomeScreen from './src/views/HomePAge';
 import Header from './src/nav/Header';
 import LoginForm from './src/component/LoginForm';
 import MenuPage from './src/views/MenuPage';
 
+import AuthContext from './src/component/AuthContext';
+import CustContext from './src/component/CustContext';
 
 
 
 export default function App() {
-  const [authenticated, setAuthenticated] = useState(false);
-  const Stack = createNativeStackNavigator();
   const Tab = createBottomTabNavigator();
-
+  const [authenticated, setAuthenticated] = useState(false);
+  const [customerId, setCustomerId] = useState(null); // Initialize customerId
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [showAccountSelection, setShowAccountSelection] = useState(false);
 
@@ -48,43 +51,46 @@ export default function App() {
     },
 
   });
-
-
-  const [customer_id, setCustomerId] = useState(null);
+  const Stack = createNativeStackNavigator();
 
   const handleLogin = (customerId) => {
-    setCustomerId(customerId);
+    setAuthenticated(true);
   };
 
 
 
   return (
     <SafeAreaProvider>
-      <NavigationContainer>
-        <Header userRole={userRole} setUserRole={setUserRole} />
-        
-          {authenticated ? (
-            <Stack.Screen
-              name="Login"
-              component={LoginForm}
-              initialParams={{ setAuthenticated }}
-            />
-          ) : (
-            <>
-              <Stack.Screen name="Main" 
-              component={MainStack}
-              options={{ 
-                headerShown: false
-                
-                }} />
+      <AuthContext.Provider value={{ authenticated, setAuthenticated }}>
+        <CustContext.Provider value={{ customerId, setCustomerId }}>
 
-
+          <NavigationContainer>
+            <Header userRole={userRole} setUserRole={setUserRole} />
+            {authenticated ? (<>
+              <Stack.Screen
+                name="Authentication"
+                component={AuthenticationPage} />
             </>
-          )}
-       
-        <Footer/>
-      </NavigationContainer>
+            ) : (
+              <>
+                <Stack.Screen name="Main"
+                  component={MainStack}
+                  options={{
+                    headerShown: false
 
+                  }} />
+
+
+              </>)}
+
+
+
+
+            <Footer />
+          </NavigationContainer>
+        </CustContext.Provider>
+
+      </AuthContext.Provider>
 
     </SafeAreaProvider>
 
@@ -93,15 +99,19 @@ export default function App() {
 
 function MainStack() {
   const Stack = createNativeStackNavigator();
+  const { authenticated } = useContext(AuthContext);
+  const { customerId } = useContext(CustContext);
 
   return (
-    <Stack.Navigator initialRouteName={customer_id ? 'MenuPage' : 'Home'}>
-      {customer_id ? (
+    <Stack.Navigator initialRouteName={customerId ? 'MenuPage' : 'Home'}>
+      {authenticated ? (
         <>
-          <Stack.Screen name="MenuPage" component={MenuPage} 
+          <Stack.Screen name="MenuPage" component={MenuPage}            initialParams={{ customerId: customerId }} // Pass customerId as initialParams
+/>
+          <Stack.Screen name="RestaurantsPage" component={RestaurantsPage}             initialParams={{ customerId: customerId }} // Pass customerId as initialParams
+/>
+          <Stack.Screen name="OrderHistory" component={OrderHistory} userRole={userRole}            initialParams={{ customerId: customerId }} // Pass customerId as initialParams
  />
- <Stack.Screen name="RestaurantsPage" component={RestaurantsPage}  initialParams={{ customer_id }}/>
-          <Stack.Screen name="OrderHistory" component={OrderHistory} />
         </>
       ) : (
         <Stack.Screen name="HomePage" component={HomeScreen} />

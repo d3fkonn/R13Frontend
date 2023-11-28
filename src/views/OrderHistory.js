@@ -11,13 +11,13 @@ const OrderHistory = () => {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState('');
-
+const [userRole, setUserRole] = useState('')
 
   const fetchOrders = async () => {
     try {
       setLoading(true);
       setError('');
-      const response = await fetch(`${process.env.EXPO_PUBLIC_NGROK_URL}/api/orders`);
+      const response = await fetch(`${process.env.EXPO_PUBLIC_NGROK_URL}/api/orders?type=${userRole}`);
       if (response.ok) {
         const data = await response.json();
         setOrdersData(data);

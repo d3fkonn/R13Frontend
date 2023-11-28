@@ -22,12 +22,12 @@ const MenuPage = ({ }) => {
   useEffect(() => {
     setOrder({});
     setIsOrderModalVisible(false);
-    console.log(restaurantId)
+    console.log("restaurantID", restaurantId)
     fetch(`${process.env.EXPO_PUBLIC_NGROK_URL}/api/products?restaurant=${(restaurantId)}`)
       .then((response) => response.json())
       .then((data) => {
         setRestaurantData(data);
-        console.log(data)
+        console.log("data",data)
         // Initialize the order with zero quantity for each menu item
         const initialOrder = {};
         data.forEach((product) => {
@@ -58,7 +58,7 @@ const MenuPage = ({ }) => {
     if (hasItemsInOrder) {
       // Display the order confirmation modal
       setIsOrderModalVisible(true);
-      console.log('Order:', order);
+      console.log('CustomerId:', customerId);
       // Reset the order
       const initialOrder = {};
       restaurantData.forEach((product) => {
@@ -72,16 +72,16 @@ const MenuPage = ({ }) => {
   const handleConfirmOrder = async () => {
     // Send the order data to the server for processing
     // This is where you would typically make a POST request to the API
-    console.log('Order:', order);
     
       const orderData = {
         restaurant_id: restaurantId,
-        customer_id: customerId,
+         customerId,
         products: Object.keys(order).map((productId) => ({
           id: productId,
           quantity: order[productId].toString(),
         })),
       };
+    console.log('OrderData:', orderData);
 
       const response = await fetch(`${process.env.EXPO_PUBLIC_NGROK_URL}/api/orders`,{
         method:'POST',
@@ -118,7 +118,7 @@ return
   return (
     <View style={styles.container}>
       <ScrollView style={styles.scrollContainer}>
-        <Text style={styles.restaurantName}>Restaurant Name:{restaurantData.name} Restaurant ID{restaurantId} Customer ID: {customerId}</Text>
+        <Text style={styles.restaurantName}>Restaurant Name:{restaurantData.name} Restaurant ID{restaurantId}</Text>
         <FlatList
           data={restaurantData}
           keyExtractor={(item) => item.id.toString()}

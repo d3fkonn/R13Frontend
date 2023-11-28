@@ -1,44 +1,70 @@
 // Import our React and React Native dependencies.
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { View, Text, StyleSheet, Dimensions, Image, Button } from 'react-native';
 import { HelperText, TextInput } from 'react-native-paper';
 import { useFonts } from 'expo-font';
 import { useNavigation } from '@react-navigation/native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import {useRoute} from '@react-navigation/native';
+import AuthContext from '../component/AuthContext';
+import CustContext from '../component/CustContext';
 
 // Gather screen dimensions.
 const screenWidth = Dimensions.get('screen').width
 
 // Create our local screen function.
-const AuthenticationPage = ({ setAuthenticated }) => {
-
+const AuthenticationPage = () => {
+  const { setAuthenticated } = useContext(AuthContext);
+const {setCustomerId} = useContext(CustContext)
   const navigation = useNavigation();
-  const [email, setEmail] = React.useState('');
-  const [password, setPassword] = React.useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [emailError, setEmailError] = useState(false);
 
   const onChangeEmail = email => setEmail(email);
   const onChangePassword = password => setPassword(password);
   //NEW SHIT BELOW UNTIL SIMULATED LOGIN
 
+  // let setAuthenticated;
+  // if (route && route.params) {
+  //   setAuthenticated = route.params.setAuthenticated;
+  // }
+ 
+
 
   const handleFormSubmit = async () => {
   
-    const newPerson = { email, password };
+    const newPerson = {
+       email: email,
+        password: password 
+      };
+
+
     if (!email.includes('@')) {
       setEmailError(true);
     }
     else {
-      const response = await fetch("https://localhost:3000/user/login", {
+
+      const response = await fetch(`${process.env.EXPO_PUBLIC_NGROK_URL}/api/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(newPerson),
       });
+
       if (response.ok) {
+
+        const data = await response.json()
+        console.log(data)
+
         setAuthenticated(true); // Set authenticated state to true
-        navigation.navigate('Home'); // Navigate to HomeScreen
+setCustomerId(data.customer_id)
+        navigation.navigate('Restaurants', {
+          customer_id: data.customer_id,
+
+        }); // Navigate to HomeScreen
+        return;
       }
     }
     // Simulating a successful login. You can replace this with your actual login logic.

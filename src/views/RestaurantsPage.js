@@ -71,7 +71,7 @@ useEffect(() => {
     
     navigation.navigate('MenuPage', {
       restaurantId: restaurant.id,
-      customer_id: customer_id,
+      customerId: customer_id,
 
     });  };
 
