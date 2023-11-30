@@ -4,17 +4,22 @@ import { StyleSheet, Text, View, Dimensions, Image, Button } from 'react-native'
 import { TouchableOpacity } from 'react-native';
 import { useState } from 'react';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-// Gather screen dimensions.
+import RoleContext from '../component/RoleContext';
+import { useContext } from 'react';
+
+
+
+
 const screenWidth = Dimensions.get('screen').width
 
-const Header = () => {
+const Header = ({userRole}) => {
   const _goBack = () => console.log('Went back');
 
   const _handleSearch = () => console.log('Searching');
 
   const _handleMore = () => console.log('Shown more');
   
-  const [userRole, setUserRole] = useState('customer'); // Default to 'customer'
+  const {setUserRole} = useContext(RoleContext)
 
   const handleFormSubmit = () => {
     if (!email.includes('@')) {
@@ -26,6 +31,7 @@ const Header = () => {
   }
   const toggleUserRole = () => {
     setUserRole(prevRole => (prevRole === 'customer' ? 'courier' : 'customer'));
+    console.log(userRole)
   };
 
   return (
