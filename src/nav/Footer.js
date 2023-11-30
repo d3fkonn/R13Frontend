@@ -8,15 +8,19 @@ import OrderHistory from "../views/OrderHistory";
 import RestaurantsPage from '../views/RestaurantsPage';
 import MenuPage from '../views/MenuPage';
 import { useState } from 'react';
-
-
+import { useContext } from 'react';
+import AuthContext from '../component/AuthContext';
+import CustContext from '../component/CustContext';
+import RoleContext from '../component/RoleContext';
 
 const Footer = () => {
   const Tab = createBottomTabNavigator();
-
+  const { authenticated } = useContext(AuthContext);
+const {customerId} = useContext(CustContext)
+const {userRole} = useContext(RoleContext)
   return (
     <Tab.Navigator
-      initialRouteName={'Home'}
+      initialRouteName={authenticated ? 'Home' : 'Authentication'}
       screenOptions={({ route }) => ({
         tabBarActiveTintColor: "red",
         tabBarInactiveTintColor: "blue",
@@ -45,14 +49,17 @@ const Footer = () => {
 
           return <Ionicons name={iconName} size={size} color={color} />
         },
-      })}
-    >
-      <Tab.Screen name="Authentication" component={AuthenticationPage} />
-      <Tab.Screen name="Restaurants" component={RestaurantsPage} />
-      <Tab.Screen name="Order History" component={OrderHistory} />
-      <Tab.Screen name="Home" component={HomeScreen} />
-      <Tab.Screen name="MenuPage" component={MenuPage} />
-
+      })}>
+       {authenticated ? (
+        <>
+          <Tab.Screen name="Restaurants" component={RestaurantsPage} />
+          <Tab.Screen name="Order History" component={OrderHistory} initialParams={{ customerId: customerId, userRole: userRole }} />
+          <Tab.Screen name="Home" component={HomeScreen} />
+          <Tab.Screen name="MenuPage" component={MenuPage} />
+        </>
+       ) : (
+        <Tab.Screen name="Authentication" component={AuthenticationPage} />
+       )}
     </Tab.Navigator>
   );
 };
