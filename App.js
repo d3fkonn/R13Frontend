@@ -1,6 +1,6 @@
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View } from 'react-native';
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import Footer from './src/nav/Footer';
@@ -21,19 +21,20 @@ import MenuPage from './src/views/MenuPage';
 
 import AuthContext from './src/component/AuthContext';
 import CustContext from './src/component/CustContext';
+import RoleContext from './src/component/RoleContext';
 
 
 
 export default function App() {
   const Tab = createBottomTabNavigator();
   const [authenticated, setAuthenticated] = useState(false);
-  const [customerId, setCustomerId] = useState(null); // Initialize customerId
+  const [customerId, setCustomerId] = useState(); // Initialize customerId
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [showAccountSelection, setShowAccountSelection] = useState(false);
 
   const [userRole, setUserRole] = useState('customer'); // Default to 'customer'
 
-
+console.log("appsID", customerId)
 
   const [fontsLoaded] = useFonts({
     'Oswald-Regular': require('./assets/fonts/Oswald-Regular.ttf'),
@@ -63,18 +64,20 @@ export default function App() {
     <SafeAreaProvider>
       <AuthContext.Provider value={{ authenticated, setAuthenticated }}>
         <CustContext.Provider value={{ customerId, setCustomerId }}>
-
+<RoleContext.Provider value={{userRole, setUserRole}}>
           <NavigationContainer>
             <Header userRole={userRole} setUserRole={setUserRole} />
             {authenticated ? (<>
               <Stack.Screen
                 name="Authentication"
-                component={AuthenticationPage} />
+                component={AuthenticationPage} 
+                customerId={customerId}/>
             </>
             ) : (
               <>
                 <Stack.Screen name="Main"
                   component={MainStack}
+                  
                   options={{
                     headerShown: false
 
@@ -86,8 +89,9 @@ export default function App() {
 
 
 
-            <Footer />
+            <Footer  />
           </NavigationContainer>
+          </RoleContext.Provider>
         </CustContext.Provider>
 
       </AuthContext.Provider>
@@ -100,22 +104,15 @@ export default function App() {
 function MainStack() {
   const Stack = createNativeStackNavigator();
   const { authenticated } = useContext(AuthContext);
-  const { customerId } = useContext(CustContext);
-
+const {userRole} = useContext(RoleContext)
   return (
     <Stack.Navigator initialRouteName={customerId ? 'MenuPage' : 'Home'}>
-      {authenticated ? (
-        <>
-          <Stack.Screen name="MenuPage" component={MenuPage}            initialParams={{ customerId: customerId }} // Pass customerId as initialParams
-/>
-          <Stack.Screen name="RestaurantsPage" component={RestaurantsPage}             initialParams={{ customerId: customerId }} // Pass customerId as initialParams
-/>
-          <Stack.Screen name="OrderHistory" component={OrderHistory} userRole={userRole}            initialParams={{ customerId: customerId }} // Pass customerId as initialParams
- />
-        </>
-      ) : (
+        
+          <Stack.Screen name="MenuPage" component={MenuPage}            initialParams={{ customerId: customerId }}/>
+          <Stack.Screen name="RestaurantsPage" component={RestaurantsPage}             initialParams={{ customerId: customerId }}/>
+          <Stack.Screen name="OrderHistory" component={OrderHistory}    customerId={customerId}     initialParams={{ customerId: customerId, userRole: userRole }}/>
+        
         <Stack.Screen name="HomePage" component={HomeScreen} />
-      )}
     </Stack.Navigator>
   );
 }
