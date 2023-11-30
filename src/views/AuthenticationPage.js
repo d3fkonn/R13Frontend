@@ -13,14 +13,15 @@ import CustContext from '../component/CustContext';
 const screenWidth = Dimensions.get('screen').width
 
 // Create our local screen function.
-const AuthenticationPage = () => {
+const AuthenticationPage = (customerId) => {
   const { setAuthenticated } = useContext(AuthContext);
 const {setCustomerId} = useContext(CustContext)
+
   const navigation = useNavigation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [emailError, setEmailError] = useState(false);
-
+const [loginError, setLoginError] = useState(false)
   const onChangeEmail = email => setEmail(email);
   const onChangePassword = password => setPassword(password);
   //NEW SHIT BELOW UNTIL SIMULATED LOGIN
@@ -57,14 +58,18 @@ const {setCustomerId} = useContext(CustContext)
 
         const data = await response.json()
         console.log(data)
-
+const customerAuth = data.customer_id
         setAuthenticated(true); // Set authenticated state to true
-setCustomerId(data.customer_id)
+setCustomerId(customerAuth)
+console.log("paramID", customerId)
         navigation.navigate('Restaurants', {
           customer_id: data.customer_id,
 
         }); // Navigate to HomeScreen
         return;
+      }else{
+        setLoginError(true)
+        setPassword("")
       }
     }
     // Simulating a successful login. You can replace this with your actual login logic.
@@ -89,6 +94,7 @@ setCustomerId(data.customer_id)
               <View style={styles.authFormText}>
                 <Text style={styles.welcomeText}>Welcome Back </Text>
                 <Text>Login to Begin</Text>
+                <Text></Text>
               </View>
 
               <View style={styles.authFormInput}>
@@ -105,6 +111,12 @@ setCustomerId(data.customer_id)
                   visible={emailError}
                 >
                   Email address is invalid!
+                </HelperText>
+                <HelperText
+                  type='error'
+                  visible={loginError}
+                >
+                  Incorrect email or password!
                 </HelperText>
                 <Text style={styles.authFormInputText}>Password:</Text>
                 <TextInput
