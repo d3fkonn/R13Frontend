@@ -15,6 +15,7 @@ import RoleContext from '../component/RoleContext';
 
 const Footer = () => {
   const Tab = createBottomTabNavigator();
+  const [nothing, setNothing] = useState(false)
   const { authenticated } = useContext(AuthContext);
 const {customerId} = useContext(CustContext)
 const {userRole} = useContext(RoleContext)
@@ -55,7 +56,8 @@ const {userRole} = useContext(RoleContext)
           <Tab.Screen name="Restaurants" component={RestaurantsPage} />
           <Tab.Screen name="Order History" component={OrderHistory} initialParams={{ customerId: customerId, userRole: userRole }} />
           <Tab.Screen name="Home" component={HomeScreen} />
-          <Tab.Screen name="MenuPage" component={MenuPage} />
+          {nothing ? (<Tab.Screen name="MenuPage" component={MenuPage} />):(nothing)}
+          
         </>
        ) : (
         <Tab.Screen name="Authentication" component={AuthenticationPage} />

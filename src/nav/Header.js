@@ -6,8 +6,9 @@ import { useState } from 'react';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import RoleContext from '../component/RoleContext';
 import { useContext } from 'react';
-
-
+import AuthContext from '../component/AuthContext'
+import CustContext from '../component/CustContext';
+import { useNavigation } from '@react-navigation/native'; // Correct import statement
 
 
 const screenWidth = Dimensions.get('screen').width
@@ -19,7 +20,9 @@ const Header = ({userRole}) => {
 
   const _handleMore = () => console.log('Shown more');
   
-  const {setUserRole} = useContext(RoleContext)
+const {setAuthenticated} = useContext(AuthContext)
+const { setCustomerId } = useContext(CustContext)
+const navigation = useNavigation();
 
   const handleFormSubmit = () => {
     if (!email.includes('@')) {
@@ -29,10 +32,12 @@ const Header = ({userRole}) => {
       navigation.navigate('Restaurants')
     }
   }
-  const toggleUserRole = () => {
-    setUserRole(prevRole => (prevRole === 'customer' ? 'courier' : 'customer'));
-    console.log(userRole)
-  };
+
+
+  const toggleUserAuth = () => {
+setAuthenticated(false)
+setCustomerId();
+navigation.navigate('Authentication')  };
 
   return (
     <View style={styles.titleContainer}>
@@ -42,9 +47,9 @@ const Header = ({userRole}) => {
     <Image source={require('../../assets/fonts/images/AppLogoV1.png')}
         style={styles.imageStyle} />
       <View>
-        <TouchableOpacity onPress={toggleUserRole}>
-          <Text style={styles.toggleButton}>
-            {userRole === 'customer' ? 'Switch to Courier' : 'Switch to Customer'}
+        <TouchableOpacity onPress={toggleUserAuth}>
+          <Text style={styles.logOutButton}>
+            Log Out
           </Text>
         </TouchableOpacity>
       </View>      

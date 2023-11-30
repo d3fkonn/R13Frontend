@@ -74,7 +74,7 @@ console.log("products",selectedProducts)
     fetchOrders();
   }, []);
 
-  const handleOrderPress = (order) => {
+  const handleOrderPress = async (order) => {
     setModalVisible(true);
     setSelectedOrder(order);
   };
@@ -155,14 +155,14 @@ console.log("products",selectedProducts)
             <Text>Price: {selectedOrder.total_cost}</Text>
   
             {/* Map through the products and create a card for each product */}
-            {selectedOrder.products.map((product, index) => (
-              <View key={index} style={styles.productCard}>
-                <Text>{product.product_name}</Text>
-                <Text>Quantity: {product.quantity}</Text>
-                <Text>Unit Cost: {product.unit_cost}</Text>
-                {/* You can add more details if needed */}
-              </View>
-            ))}
+            {selectedOrder.products && selectedOrder.products.map((product, index) => (
+  <View key={index} style={styles.productCard}>
+    <Text>{product.product_name}</Text>
+    <Text>Quantity: {product.quantity}</Text>
+    <Text>Unit Cost: {product.unit_cost}</Text>
+    {/* You can add more details if needed */}
+  </View>
+))}
            
 
             {/* Add more details as needed */}
