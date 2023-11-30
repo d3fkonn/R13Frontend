@@ -3,7 +3,6 @@ import { View, Text, Image, StyleSheet, TouchableOpacity, Dimensions, ScrollView
 import { MaterialIcons } from '@expo/vector-icons';
 import MenuPage from './MenuPage';
 import { useRoute } from "@react-navigation/native";
-
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native'; // Correct import statement
 
@@ -35,6 +34,23 @@ const RestaurantsPage = () => {
 useEffect(() => {
   fetchRestaurants();
 }, []);
+
+const restaurantImages = {
+  Greek: require('../../assets/fonts/images/restaurants/cuisineGreek.jpg'),
+  Japanese: require('../../assets/fonts/images/restaurants/cuisineJapanese.jpg'),
+  Pasta: require('../../assets/fonts/images/restaurants/cuisinePasta.jpg'),
+  Pizza: require('../../assets/fonts/images/restaurants/cuisinePizza.jpg'),
+  Southeast: require('../../assets/fonts/images/restaurants/cuisineSoutheast.jpg'),
+  Viet: require('../../assets/fonts/images/restaurants/cuisineViet.jpg'),
+};
+
+// ... (rest of your code)
+
+const getRandomImage = () => {
+  const imageKeys = Object.keys(restaurantImages);
+  const randomKey = imageKeys[Math.floor(Math.random() * imageKeys.length)];
+  return restaurantImages[randomKey];
+};
 
 
   const navigation = useNavigation(); // Get the navigation object
@@ -169,7 +185,7 @@ useEffect(() => {
                   // Navigate to the MenuPage and pass the restaurantId as a parameter
                 }}
               >
-                  <Image source={restaurant.image} style={styles.restaurantImage} />
+              <Image source={getRandomImage()} style={styles.restaurantImage} />
                   <Text>{restaurant.name}</Text>
                   <Text>Rating: {restaurant.rating}</Text>
                   <Text>Price: {restaurant.price}</Text>
