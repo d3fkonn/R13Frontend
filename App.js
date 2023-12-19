@@ -18,11 +18,15 @@ import HomeScreen from './src/views/HomePAge';
 import Header from './src/nav/Header';
 import LoginForm from './src/component/LoginForm';
 import MenuPage from './src/views/MenuPage';
-
+import UserSelectionPage from './src/views/AccountPage';
 import AuthContext from './src/component/AuthContext';
 import CustContext from './src/component/CustContext';
 import RoleContext from './src/component/RoleContext';
-
+import CourierContext from './src/component/CourierContext';
+import UserContext from './src/component/UserContext';
+import DeliveryHistory from './src/views/DeliveryPage';
+import { PaperProvider } from 'react-native-paper';
+import Toast from 'react-native-toast-message/lib';
 
 
 export default function App() {
@@ -31,10 +35,10 @@ export default function App() {
   const [customerId, setCustomerId] = useState(); // Initialize customerId
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [showAccountSelection, setShowAccountSelection] = useState(false);
+  const [courierID, setCourierID] = useState()
+  const [userRole, setUserRole] = useState(''); // Default to 'customer'
+  const [userId, setUserId] = useState();
 
-  const [userRole, setUserRole] = useState('customer'); // Default to 'customer'
-
-console.log("appsID", customerId)
 
   const [fontsLoaded] = useFonts({
     'Oswald-Regular': require('./assets/fonts/Oswald-Regular.ttf'),
@@ -62,57 +66,136 @@ console.log("appsID", customerId)
 
   return (
     <SafeAreaProvider>
-      <AuthContext.Provider value={{ authenticated, setAuthenticated }}>
-        <CustContext.Provider value={{ customerId, setCustomerId }}>
-<RoleContext.Provider value={{userRole, setUserRole}}>
-          <NavigationContainer>
-            <Header userRole={userRole} setUserRole={setUserRole} />
-            {authenticated ? (<>
-              <Stack.Screen
-                name="Authentication"
-                component={AuthenticationPage} 
-                customerId={customerId}/>
-            </>
-            ) : (
-              <>
-                <Stack.Screen name="Main"
-                  component={MainStack}
-                  
-                  options={{
-                    headerShown: false
+      <PaperProvider>
 
-                  }} />
+        <AuthContext.Provider value={{ authenticated, setAuthenticated }}>
+          <CustContext.Provider value={{ customerId, setCustomerId }}>
+            <RoleContext.Provider value={{ userRole, setUserRole }}>
+              <CourierContext.Provider value={{ courierID, setCourierID }}>
+                <UserContext.Provider value={{ userId, setUserId }}>
+                  <NavigationContainer>
+                    <Header userRole={userRole} setUserRole={setUserRole} />
+                    {authenticated ? (
 
 
-              </>)}
+                      <Tab.Navigator
+
+                        screenOptions={({ route }) => ({
+                          tabBarActiveTintColor: "red",
+                          tabBarInactiveTintColor: "blue",
+                          tabBarLabelStyle: {
+                            paddingBottom: 10,
+                            fontSize: 12,
+                            fontWeight: 'bold'
+                          },
+                          tabBarStyle: {
+                            height: 90
+                          },
+
+
+                        })} tabBar={(props) => <Footer {...props} />
+                        }
+                      >
+
+                        {userRole == 'courier' ? (
+                          <Tab.Screen name='DeliveryPage' component={DeliveryHistory} options={{ tabBarIconName: 'search', tabBarLabel: 'Deliveries', headerShown: false }} />
+                        ) : (
+                          <>
+                          </>
+                        )}
+                        {userRole == 'customer' ? (
+                          <>
+                            <Tab.Screen name="Restaurants" component={RestaurantsStack} options={{ tabBarIconName: 'restaurant', tabBarLabel: 'Restaurants', headerShown: false }} />
+                            <Tab.Screen name="OrderHistory" component={OrderHistory} options={{ tabBarIconName: 'cloud', tabBarLabel: 'Order History', headerShown: false }} />
+
+                          </>
+                        ) : (
+                          <>
+                          </>
+                        )}
+
+                        {/* <Tab.Screen name="HomePage" component={HomeScreen} options={{ tabBarIconName: 'home', tabBarLabel: 'Home', headerShown: false }} /> */}
+                        <Tab.Screen name="AccountsPage" component={UserSelectionPage} options={{ tabBarIconName: 'menu', tabBarLabel: 'Accounts Page', headerShown: false }} />
+                      </Tab.Navigator>
+                    ) : (
+
+
+                      <AuthenticationPage />
+
+                    )}
 
 
 
 
-            <Footer  />
-          </NavigationContainer>
-          </RoleContext.Provider>
-        </CustContext.Provider>
+<Toast/>
 
-      </AuthContext.Provider>
+                  </NavigationContainer>
+                </UserContext.Provider>
+              </CourierContext.Provider>
+            </RoleContext.Provider>
+          </CustContext.Provider>
 
+        </AuthContext.Provider>
+      </PaperProvider>
     </SafeAreaProvider>
 
   );
 }
 
-function MainStack() {
-  const Stack = createNativeStackNavigator();
-  const { authenticated } = useContext(AuthContext);
-const {userRole} = useContext(RoleContext)
+function RestaurantsStack() {
+  const Tab = createBottomTabNavigator();
   return (
-    <Stack.Navigator initialRouteName={customerId ? 'MenuPage' : 'Home'}>
-        
-          <Stack.Screen name="MenuPage" component={MenuPage}            initialParams={{ customerId: customerId }}/>
-          <Stack.Screen name="RestaurantsPage" component={RestaurantsPage}             initialParams={{ customerId: customerId }}/>
-          <Stack.Screen name="OrderHistory" component={OrderHistory}    customerId={customerId}     initialParams={{ customerId: customerId, userRole: userRole }}/>
-        
-        <Stack.Screen name="HomePage" component={HomeScreen} />
-    </Stack.Navigator>
+    <Tab.Navigator initialRouteName={'RestaurantsPage'} >
+      <Tab.Screen name="RestaurantsPage" component={RestaurantsPage} options={{
+        headerShown: false, tabBarStyle: { display: "none" },
+      }} />
+
+      <Tab.Screen name="MenuPage" component={MenuPage} options={{
+        headerShown: false, tabBarStyle: { display: "none" },
+      }}
+      />
+
+
+    </Tab.Navigator>
   );
 }
+
+// const App = () => {
+//   const [isLoggedIn: boolean, setIsLoggedIn] = useState(initialState: false); const [fontsLoaded: boolean] = useFonts(map: {
+//   });
+//   'Oswald-Regular': require('./assets/fonts/Oswald-Regular.ttf'), 'Oswald-Bold': require('./assets/fonts/Oswald-Bold.ttf'),
+// if (!fontsLoaded) return <View> <Text>Loading...</Text></View>;
+//   return (
+//     <UserProvider>
+//       <SafeAreaView style={{ flex: 1 }}>
+//         {isLoggedIn && <Header onLogout={(): void => setIsLoggedIn(value: false)} />} <NavigationContainer>
+//           fisLoggedIn? (
+//           <LoginScreen onLogin ((): void =>setIsLoggedIn(value: true)} />
+//           ): (
+//           <Tab.Navigator
+//             screenOptions={{
+//               tabBarStyle: {
+//                 backgroundColor: '#f2f2f2',
+//                 paddingVertical: 18,
+//                 paddingHorizontal: 28,
+//                 G
+//               }
+//             }
+//             }}
+//           tabBar={(props: BottomTabBarProps) => <Footer {...props} />}
+//           <Tab.Screen
+//           />
+//           name="Restaurants"
+//           component={RestaurantsStack}
+//           options={{ tabBarIconName: 'restaurant', tabBarLabel: 'Restaurants', headerShown: false }}
+//           <Tab.Screen
+//           />
+//           name="OrdersHistoryScreen"
+//           component {OrdersHistoryScreen}
+//           options={{ tabBarIconName: 'list', tabBarLabel: 'Order History', header Shown: false }}
+//         </Tab.Navigator>
+//       </NavigationContainer>
+//     </SafeAreaView>
+// </UserProvider >
+// );
+// };

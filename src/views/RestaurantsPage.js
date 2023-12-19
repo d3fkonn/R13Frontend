@@ -5,7 +5,6 @@ import MenuPage from './MenuPage';
 import { useRoute } from "@react-navigation/native";
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native'; // Correct import statement
-
 import { useFonts } from 'expo-font';
 
 // Import our images.
@@ -20,37 +19,37 @@ const screenHeight = Dimensions.get("screen").height;
 const screenWidth = Dimensions.get('screen').width;
 
 const RestaurantsPage = () => {
-  const ratingOptions = ['Select', '*', '**', '***', '****', '*****'];
-  const priceOptions = ['Select', '*', '**', '***', '****', '*****'];
+  const ratingOptions = ['Select','★','★★','★★★','★★★★','★★★★★']
+  const priceOptions = ['Select','$','$$','$$$'];
   const [selectedRating, setSelectedRating] = useState('Select');
   const [selectedPrice, setSelectedPrice] = useState('Select');
   const [isRatingDropdownVisible, setIsRatingDropdownVisible] = useState(false);
   const [isPriceDropdownVisible, setIsPriceDropdownVisible] = useState(false);
   const [restaurantData, setRestaurantData] = useState([]);
   const route = useRoute(); // Get the route object to access parameters
+  const [ratingVisual, setRatingVisual] = useState('Select')
 
-  const customer_id = route.params
+  const [priceVisual, setPriceVisual] = useState('Select')
+  useEffect(() => {
+    fetchRestaurants();
+  }, [!restaurantData]);
 
-useEffect(() => {
-  fetchRestaurants();
-}, []);
+  const restaurantImages = {
+    Greek: require('../../assets/fonts/images/restaurants/cuisineGreek.jpg'),
+    Japanese: require('../../assets/fonts/images/restaurants/cuisineJapanese.jpg'),
+    Pasta: require('../../assets/fonts/images/restaurants/cuisinePasta.jpg'),
+    Pizza: require('../../assets/fonts/images/restaurants/cuisinePizza.jpg'),
+    Southeast: require('../../assets/fonts/images/restaurants/cuisineSoutheast.jpg'),
+    Viet: require('../../assets/fonts/images/restaurants/cuisineViet.jpg'),
+  };
 
-const restaurantImages = {
-  Greek: require('../../assets/fonts/images/restaurants/cuisineGreek.jpg'),
-  Japanese: require('../../assets/fonts/images/restaurants/cuisineJapanese.jpg'),
-  Pasta: require('../../assets/fonts/images/restaurants/cuisinePasta.jpg'),
-  Pizza: require('../../assets/fonts/images/restaurants/cuisinePizza.jpg'),
-  Southeast: require('../../assets/fonts/images/restaurants/cuisineSoutheast.jpg'),
-  Viet: require('../../assets/fonts/images/restaurants/cuisineViet.jpg'),
-};
+  // ... (rest of your code)
 
-// ... (rest of your code)
-
-const getRandomImage = () => {
-  const imageKeys = Object.keys(restaurantImages);
-  const randomKey = imageKeys[Math.floor(Math.random() * imageKeys.length)];
-  return restaurantImages[randomKey];
-};
+  const getRandomImage = () => {
+    const imageKeys = Object.keys(restaurantImages);
+    const randomKey = imageKeys[Math.floor(Math.random() * imageKeys.length)];
+    return restaurantImages[randomKey];
+  };
 
 
   const navigation = useNavigation(); // Get the navigation object
@@ -66,13 +65,27 @@ const getRandomImage = () => {
   };
 
   const handleRatingSelect = (rating) => {
-    setSelectedRating(rating);
+    if(rating == 0){
+      setSelectedRating('Select');
+      setIsRatingDropdownVisible(false);
+
+    }else{
+       setSelectedRating(rating);
     setIsRatingDropdownVisible(false);
+    }
+   
   };
 
   const handlePriceSelect = (price) => {
-    setSelectedPrice(price);
+    if(price == 0){
+      setSelectedPrice('Select');
+      setIsPriceDropdownVisible(false);
+
+    }else{
+       setSelectedPrice(price);
     setIsPriceDropdownVisible(false);
+    }
+   
   };
 
   const [fontsLoaded] = useFonts({
@@ -84,39 +97,40 @@ const getRandomImage = () => {
   }
   const handleRestaurantPress = (restaurant) => {
     // Navigate to RestaurantDetailsScreen and pass restaurant data
-    
+
     navigation.navigate('MenuPage', {
       restaurantId: restaurant.id,
-      customerId: customer_id,
 
-    });  };
+    });
+  };
 
 
-  async function fetchRestaurants () {
-  
+  async function fetchRestaurants() {
+    console.log(restaurantData)
     const response = await fetch(`${process.env.EXPO_PUBLIC_NGROK_URL}/restaurants/show`);
     if (response.ok) {
       const data = await response.json();
       setRestaurantData(data);
       return;
     } else {
-      console.error('Error fetching data:', response.status);
-      return [];
+      console.error('Error fetching restaurantData:', response.status);
+      console.error('Check for restaurantData value', restaurantData)
+      return;
     }
 
 
-};
+  };
   const filteredRestaurants = restaurantData.filter((restaurant) => {
     if (selectedRating === 'Select' && selectedPrice === 'Select') {
       return true;
     }
     return (
       (selectedRating === 'Select' || restaurant.rating === selectedRating) &&
-      (selectedPrice === 'Select' || restaurant.price === selectedPrice)
+      (selectedPrice === 'Select' || restaurant.price_range === selectedPrice)
     );
   });
- 
-  
+
+
 
   const renderComponent = () => {
     return (
@@ -129,7 +143,7 @@ const getRandomImage = () => {
               <View style={styles.dropdownColumn}>
                 <Text style={styles.label}>Rating:</Text>
                 <TouchableOpacity style={styles.dropdownButton} onPress={toggleRatingDropdown}>
-                  <Text style={styles.dropdownButtonText}>{selectedRating || 'Select'}</Text>
+                  <Text style={styles.dropdownButtonText}>{ratingVisual || 'Select'}</Text>
                   <MaterialIcons
                     name={isRatingDropdownVisible ? 'keyboard-arrow-up' : 'keyboard-arrow-down'}
                     size={24}
@@ -142,7 +156,10 @@ const getRandomImage = () => {
                       <TouchableOpacity
                         key={index}
                         style={styles.optionItem}
-                        onPress={() => handleRatingSelect(option)}
+                        onPress={() =>{
+                          handleRatingSelect(index)
+                          setRatingVisual(option)
+                        }}
                       >
                         <Text>{option}</Text>
                       </TouchableOpacity>
@@ -153,7 +170,7 @@ const getRandomImage = () => {
               <View style={styles.dropdownColumn}>
                 <Text style={styles.label}>Price:</Text>
                 <TouchableOpacity style={styles.dropdownButton} onPress={togglePriceDropdown}>
-                  <Text style={styles.dropdownButtonText}>{selectedPrice || 'Select'}</Text>
+                  <Text style={styles.dropdownButtonText}>{priceVisual || 'Select'}</Text>
                   <MaterialIcons
                     name={isPriceDropdownVisible ? 'keyboard-arrow-up' : 'keyboard-arrow-down'}
                     size={24}
@@ -166,7 +183,10 @@ const getRandomImage = () => {
                       <TouchableOpacity
                         key={index}
                         style={styles.optionItem}
-                        onPress={() => handlePriceSelect(option)}
+                        onPress={() => {
+                          handlePriceSelect(index)
+                          setPriceVisual(option)
+                        }}
                       >
                         <Text>{option}</Text>
                       </TouchableOpacity>
@@ -179,16 +199,17 @@ const getRandomImage = () => {
             <ScrollView style={styles.scrollableContainer}><View style={styles.restaurantContainer}>
               {filteredRestaurants.map((restaurant, index) => (
                 <TouchableOpacity
-                key={index}
-                style={styles.restaurantCard}
-                onPress={() => { handleRestaurantPress(restaurant)
-                  // Navigate to the MenuPage and pass the restaurantId as a parameter
-                }}
-              >
-              <Image source={getRandomImage()} style={styles.restaurantImage} />
+                  key={index}
+                  style={styles.restaurantCard}
+                  onPress={() => {
+                    handleRestaurantPress(restaurant)
+                    // Navigate to the MenuPage and pass the restaurantId as a parameter
+                  }}
+                >
+                  <Image source={getRandomImage()} style={styles.restaurantImage} />
                   <Text>{restaurant.name}</Text>
-                  <Text>Rating: {restaurant.rating}</Text>
-                  <Text>Price: {restaurant.price}</Text>
+                  <Text>{ratingOptions[restaurant.rating]}</Text>
+                  <Text>{priceOptions[restaurant.price_range]}</Text>
                 </TouchableOpacity>
 
               ))}

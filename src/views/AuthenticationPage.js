@@ -1,44 +1,50 @@
 // Import our React and React Native dependencies.
-import React, { useState, useEffect, useContext } from 'react';
-import { View, Text, StyleSheet, Dimensions, Image, Button } from 'react-native';
+import React, { useState, useEffect, useContext, } from 'react';
+import { View, Text, StyleSheet, Dimensions, Image, Button, Modal, Pressable } from 'react-native';
 import { HelperText, TextInput } from 'react-native-paper';
 import { useFonts } from 'expo-font';
 import { useNavigation } from '@react-navigation/native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import {useRoute} from '@react-navigation/native';
+import { useRoute } from '@react-navigation/native';
 import AuthContext from '../component/AuthContext';
 import CustContext from '../component/CustContext';
-
+import UserContext from '../component/UserContext';
+import CourierContext from '../component/CourierContext';
+import RoleContext from '../component/RoleContext';
 // Gather screen dimensions.
 const screenWidth = Dimensions.get('screen').width
 
 // Create our local screen function.
 const AuthenticationPage = (customerId) => {
   const { setAuthenticated } = useContext(AuthContext);
-const {setCustomerId} = useContext(CustContext)
-
+  const { setCustomerId } = useContext(CustContext)
+  const { setCourierID } = useContext(CourierContext)
+  const { setUserId } = useContext(UserContext)
+  const { setUserRole } = useContext(RoleContext)
   const navigation = useNavigation();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState('erica.ger@gmail.com');
+  const [password, setPassword] = useState('password');
   const [emailError, setEmailError] = useState(false);
-const [loginError, setLoginError] = useState(false)
+  const [loginError, setLoginError] = useState(false)
   const onChangeEmail = email => setEmail(email);
   const onChangePassword = password => setPassword(password);
+
+  const [accountModalVisible, setAccountModalVisible] = useState(false)
   //NEW SHIT BELOW UNTIL SIMULATED LOGIN
 
   // let setAuthenticated;
   // if (route && route.params) {
   //   setAuthenticated = route.params.setAuthenticated;
   // }
- 
+
 
 
   const handleFormSubmit = async () => {
-  
+
     const newPerson = {
-       email: email,
-        password: password 
-      };
+      email: email,
+      password: password
+    };
 
 
     if (!email.includes('@')) {
@@ -57,19 +63,27 @@ const [loginError, setLoginError] = useState(false)
       if (response.ok) {
 
         const data = await response.json()
-        console.log(data)
-const customerAuth = data.customer_id
-        setAuthenticated(true); // Set authenticated state to true
-setCustomerId(customerAuth)
-console.log("paramID", customerId)
-        navigation.navigate('Restaurants', {
-          customer_id: data.customer_id,
-
-        }); // Navigate to HomeScreen
-        return;
-      }else{
+        console.log("authData", data)
+        const customerAuth = data.customer_id
+        const courierAuth = data.courier_id
+        setUserId(data.user_id)
+        setCustomerId(customerAuth)
+        setCourierID(courierAuth)
+        console.log("customerAuth", customerAuth, "courierAuth", courierAuth)
+       
+        if (data.customer_id == null) {
+          setAuthenticated(true)
+          setUserRole('courier')
+        } else if (data.courier_id == null) {
+          setAuthenticated(true)
+          setUserRole('customer')
+        } else {
+          setAccountModalVisible(true)
+        } // Navigate to HomeScreen
+      } else {
+        console.error(response.status, newPerson)
         setLoginError(true)
-        setPassword("")
+        setPassword('')
       }
     }
     // Simulating a successful login. You can replace this with your actual login logic.
@@ -136,6 +150,40 @@ console.log("paramID", customerId)
             </View>
           </View>
         </View>
+
+
+
+        <View>
+
+          <Modal visible={accountModalVisible} animationType="slide" transparent={true} style={styles.modal}>
+            <View style={styles.modalView}>
+              <Pressable
+                color='#DA583B'
+                style={styles.accountButton}
+                onPress={() => {
+                  setCustomerId()
+                  setUserRole('courier')
+                  setAuthenticated(true)}}
+              >
+                <Text style={styles.accountText}>Login to Courier Account</Text>
+              </Pressable>
+
+              <Pressable
+                style={styles.accountButton}
+
+                onPress={() => {
+                  setAuthenticated(true); // Set authenticated state to true
+                  setCourierID();
+                  setUserRole('customer')
+                 
+                }}
+              > 
+              <Text style={styles.accountText}>Login to Customer Account</Text>
+              </Pressable>
+            </View>
+          </Modal>
+        </View>
+
       </SafeAreaProvider>
     </>
   )
@@ -154,7 +202,7 @@ const styles = StyleSheet.create({
     height: 120,
     position: 'relative',
     top: -75,
-    left: 10,
+    left: 30,
   },
   authBody: {
     flex: 9,
@@ -179,7 +227,48 @@ const styles = StyleSheet.create({
     fontSize: 20,
     // fontFamily:'Oswald-Regular'
 
-  }
+  }, modalView: {
+    left: '10%',
+    top: '20%',
+    zIndex: 1,
+    position: 'relative',
+    height: '65%',
+    width: '80%',
+    backgroundColor: 'white',
+    borderRadius: 20,
+    borderColor: "#DA583B",
+    borderWidth: 4,
+    padding: 6,
+    textAlign: 'center',
+    justifyContent: 'center',
+    alignItems: 'center',
+
+
+  }, modal: {
+
+    zIndex: 1,
+    position: 'relative',
+    backgroundColor: 'white',
+
+  }, accountButton: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 32,
+    borderRadius: 4,
+    backgroundColor: '#DA583B',
+    borderColor: '#222126',
+    margin: 50,
+    height: 50,
+    width: '90%',
+  },accountText: {
+    fontSize: 16,
+    lineHeight: 21,
+    fontWeight: 'bold',
+    letterSpacing: 0.25,
+    color: 'white',
+  },
+
 
 })
 
